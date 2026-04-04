@@ -2,43 +2,74 @@ package com.jwolf.wplayer
 
 import android.os.Bundle
 import android.provider.MediaStore
-import android.text.style.BackgroundColorSpan
-import android.text.style.LineBackgroundSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.materialIcon
+import androidx.compose.material.icons.rounded.PlayCircle
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAbsoluteAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.composeunstyled.Slider
+import com.composeunstyled.TabGroup
+import com.composeunstyled.Thumb
+import com.composeunstyled.rememberSliderState
+import com.composeunstyled.rememberTabGroupState
 import com.jwolf.wplayer.ui.theme.WPlayerTheme
-import org.intellij.lang.annotations.JdkConstants
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +97,10 @@ fun MainScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-    var scaffoldState = rememberBottomSheetScaffoldState()
+    var scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.PartiallyExpanded)
+    )
     val context = LocalContext.current
     val projection = arrayOf(
         MediaStore.Audio.Media.TITLE,
@@ -102,11 +136,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
     }
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
-            sheetPeekHeight = 300.dp,
+            sheetPeekHeight = 50.dp,
+            sheetMaxWidth = BottomSheetDefaults.SheetMaxWidth,
             sheetContent = {
-                MediaControl()
+                Column(modifier = modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center) {
+                    MediaControl()
+                }
             },
-            topBar = { TabRow(0) { LeadingIcoinTab() } }
+            topBar = { TabRow(0) { Tabs() } }
         ) { innerPadding ->
             MusicList(
                 modifier = Modifier.padding(innerPadding),
@@ -117,8 +158,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun LeadingIcoinTab(modifier: Modifier = Modifier.padding(50.dp)) {
-    Text(text = "Leading Icoin", modifier = modifier)
+fun Tabs(modifier: Modifier = Modifier.padding(30.dp)) {
+
 }
 
 // Formato do item
@@ -151,17 +192,58 @@ fun MusicList (modifier: Modifier = Modifier.padding(all = 16.dp), data: List<Mu
 }
 
 @Composable
-fun PlayButton(modifier: Modifier = Modifier.size(90.dp)) {
-    Icon(Icons.Filled.PlayArrow, contentDescription = "Play", modifier = modifier)
-}
-fun NextButton(modifier: Modifier = Modifier.size(90.dp)) {
-    Icon(R.drawable.outline_play_circle_24, contentDescription = "Next", modifier = modifier)
+fun PlayButton(modifier: Modifier = Modifier.size(110.dp)) {
+    Icon(Icons.Rounded.PlayCircle, contentDescription = "Play", modifier = modifier)
 }
 
 @Composable
-fun MediaControl(modifier: Modifier = Modifier.fillMaxSize()) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Row {
+fun NextButton(modifier: Modifier = Modifier.size(75.dp)) {
+    Icon(Icons.Rounded.SkipNext, contentDescription = "SkipNext", modifier = modifier)
+}
+
+@Composable
+fun PreviousButton(modifier: Modifier = Modifier.size(75.dp)) {
+    Icon(Icons.Rounded.SkipPrevious, contentDescription = "SkipPrevious", modifier = modifier)
+}
+@Composable
+fun Slider(modifier: Modifier = Modifier.fillMaxWidth(0.78f)) {
+    val sliderState = rememberSliderState(initialValue = 0f)
+    Slider(
+        state = sliderState,
+        track = {
+            Box(
+                modifier = modifier
+                    .width(100.dp)
+                    .height(8.dp)
+                    .background(Color.LightGray, CircleShape)
+            )
+        },
+        thumb = {
+            Box {
+                Thumb(
+                    shape = CircleShape,
+                    color = Color.Blue,
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun MediaControl(modifier: Modifier = Modifier.wrapContentSize()) {
+    Column(modifier = modifier.height(75.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
+        Row (verticalAlignment = Alignment.Top) {
+            Slider()
+        }
+    }
+    Column(modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
+        Row(horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            PreviousButton()
             PlayButton()
             NextButton()
         }
