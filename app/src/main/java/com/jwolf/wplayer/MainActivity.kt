@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
@@ -51,6 +53,10 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -97,6 +103,8 @@ fun MainScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
+    var selected by remember { mutableStateOf(0) }
+
     var scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
             initialValue = SheetValue.PartiallyExpanded)
@@ -147,20 +155,58 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     MediaControl()
                 }
             },
-            topBar = { TabRow(0) { Tabs() } }
+            topBar = { PrimaryTabRow (selected) {
+                Tab(
+                    selected = selected == 0,
+                    onClick = { selected = 0 },
+                    enabled = true,
+                    modifier = modifier.height(70.dp),
+                    selectedContentColor = Color.White,
+                    unselectedContentColor = Color.LightGray,
+                ) {
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth(0.5f)
+                            .fillMaxHeight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Text(text = "Songs")
+                    }
+                }
+
+                Tab(
+                    selected = selected == 1,
+                    onClick = { selected = 1 },
+                    enabled = true,
+                    modifier = modifier.height(70.dp),
+                    selectedContentColor = Color.White,
+                    unselectedContentColor = Color.LightGray,
+                ) {
+                    Column(
+                        modifier = modifier
+                            .fillMaxWidth(0.5f)
+                            .fillMaxHeight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "PlayList")
+                    }
+                }
+            } }
         ) { innerPadding ->
-            MusicList(
-                modifier = Modifier.padding(innerPadding),
-                data = musicList
-            )
+            when (selected) {
+                0 -> MusicList(data = musicList)
+                1 -> Testing()
+            }
         }
     }
 
 
-@Composable
-fun Tabs(modifier: Modifier = Modifier.padding(30.dp)) {
-
-}
+//MusicList(
+//modifier = Modifier.padding(innerPadding),
+//data = musicList
+//)
 
 // Formato do item
 @Composable
@@ -192,8 +238,16 @@ fun MusicList (modifier: Modifier = Modifier.padding(all = 16.dp), data: List<Mu
 }
 
 @Composable
-fun PlayButton(modifier: Modifier = Modifier.size(110.dp)) {
-    Icon(Icons.Rounded.PlayCircle, contentDescription = "Play", modifier = modifier)
+fun Testing(modifier: Modifier = Modifier){
+    Text(text = "JubJub")
+}
+
+@Composable
+fun PlayButton(onClick: () -> Unit = {},
+               modifier: Modifier = Modifier.size(110.dp)) {
+    Icon(Icons.Rounded.PlayCircle,
+        contentDescription = "Play",
+        modifier = modifier)
 }
 
 @Composable
