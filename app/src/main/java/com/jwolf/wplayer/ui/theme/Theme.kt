@@ -1,4 +1,4 @@
-package com.jwolf.wplayer.ui.theme
+    package com.jwolf.wplayer.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -12,18 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Purple982, // Tabs selecteds, Icon buttons
+    secondary = White, // Song text and album border
+    tertiary = White,
+    background = Black,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Purple982,
+    secondary = Black,
+    tertiary = PurpleGrey80,
+    background = White,
+
 
     /* Other default colors to override
-    background = Color(0xFFFFFBFE),
+
     surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,
     onSecondary = Color.White,
