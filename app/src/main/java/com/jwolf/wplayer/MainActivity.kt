@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.areNavigationBarsVisible
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -49,6 +52,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -84,6 +88,7 @@ import com.composeunstyled.Thumb
 import com.composeunstyled.rememberSliderState
 import com.composeunstyled.rememberTabGroupState
 import com.jwolf.wplayer.ui.theme.DarkPurple
+import com.jwolf.wplayer.ui.theme.Pinkf7
 import com.jwolf.wplayer.ui.theme.Purple982
 import com.jwolf.wplayer.ui.theme.PurpleE5
 import com.jwolf.wplayer.ui.theme.PurpleGrey80
@@ -96,10 +101,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WPlayerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.tertiary) {
+                    MainScreen(modifier = Modifier.statusBarsPadding())
                 }
             }
         }
@@ -113,6 +116,7 @@ fun MainScreenPreview() {
         MainScreen()
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -151,7 +155,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     id = id.toInt(),
                     title = title,
                     artist = artist,
-                    albumimg = R.drawable.img_album_generic_3
+                    albumimg = R.drawable.img_album_generic
                 )
             )
         }
@@ -159,12 +163,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetPeekHeight = 50.dp,
+        sheetContainerColor = MaterialTheme.colorScheme.tertiary,
         sheetMaxWidth = BottomSheetDefaults.SheetMaxWidth,
         sheetContent = {
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(250.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -172,49 +177,47 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         },
         topBar = {
-            PrimaryTabRow(selected){
-                Column(
+            PrimaryTabRow(
+                selected,
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                modifier = modifier
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+
+                Tab(
+                    selected = selected == 0,
+                    onClick = { selected = 0 },
+                    enabled = true,
+                    selectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedContentColor = MaterialTheme.colorScheme.onSecondary,
                     modifier = modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .wrapContentHeight()
+                        .height(50.dp)
                 ) {
-                    Tab(
-                        selected = selected == 0,
-                        onClick = { selected = 0 },
-                        enabled = true,
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.secondary
-                    ) {
-                        Text(
-                            text = "Songs",
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = "Songs",
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-                Column(
+
+                Tab(
+                    selected = selected == 1,
+                    onClick = { selected = 1 },
+                    enabled = true,
+                    selectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedContentColor = MaterialTheme.colorScheme.onSecondary,
                     modifier = modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .wrapContentHeight()
+                        .height(50.dp)
                 ) {
-                    Tab(
-                        selected = selected == 1,
-                        onClick = { selected = 1 },
-                        enabled = true,
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.secondary,
-                    ) {
-                        Text(
-                            text = "PlayList",
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = "PlayList",
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
+
     ) { innerPadding ->
         when (selected) {
             0 -> MusicList(data = musicList)
@@ -222,15 +225,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+
 // Formato do item
 @Composable
 fun MusicListItens(modifier: Modifier = Modifier, data: MusicPlaceHolder) {
-    Row (modifier = modifier
-        .fillMaxWidth(1f)
-        .size(70.dp)
-        .background(MaterialTheme.colorScheme.background),
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(19.dp))
+            .fillMaxWidth(1f)
+            .size(70.dp)
+            .padding(1.dp),
+        //.border(0.4.dp, PurpleGrey80, RoundedCornerShape(19.dp)),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Image(
             painter = painterResource(id = data.albumimg),
             contentDescription = "album cover",
@@ -240,19 +247,21 @@ fun MusicListItens(modifier: Modifier = Modifier, data: MusicPlaceHolder) {
                 .clip(RoundedCornerShape(19.dp))
                 .border(2.dp, PurpleGrey80, RoundedCornerShape(19.dp))
         )
-        Column (modifier = Modifier.fillMaxWidth()){
-            Text(text = data.title,
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = data.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSecondary,
                 modifier = modifier
                     .basicMarquee()
             )
-            Text(text = "by " + data.artist,
+            Text(
+                text = "by " + data.artist,
                 fontSize = 14.sp,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.onSecondary,
                 modifier = modifier
                     .basicMarquee()
                     .padding(start = 13.dp)
@@ -260,45 +269,58 @@ fun MusicListItens(modifier: Modifier = Modifier, data: MusicPlaceHolder) {
         }
     }
 }
+
 //Lista de itens
 @Composable
-fun MusicList (modifier: Modifier = Modifier.padding(all = 16.dp), data: List<MusicPlaceHolder>){
+fun MusicList(
+    modifier: Modifier = Modifier,
+    data: List<MusicPlaceHolder>
+) {
     LazyColumn(modifier = modifier) {
-        items(data){
-            music -> MusicListItens(data = music)
+        items(data) { music ->
+            MusicListItens(data = music)
         }
     }
 }
 
 @Composable
-fun Testing(modifier: Modifier = Modifier){
+fun Testing(modifier: Modifier = Modifier) {
     Text(text = "JubJub")
 }
 
 @Composable
-fun PlayButton(onClick: () -> Unit = {},
-               modifier: Modifier = Modifier.size(110.dp)) {
-    Icon(Icons.Rounded.PlayCircle,
+fun PlayButton(
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier.size(110.dp)
+) {
+    Icon(
+        Icons.Rounded.PlayCircle,
         contentDescription = "Play",
         modifier = modifier,
-        tint = Purple982)
+        tint = MaterialTheme.colorScheme.onPrimary
+    )
 }
 
 @Composable
 fun NextButton(modifier: Modifier = Modifier.size(75.dp)) {
-    Icon(Icons.Rounded.SkipNext,
+    Icon(
+        Icons.Rounded.SkipNext,
         contentDescription = "SkipNext",
         modifier = modifier,
-        tint = DarkPurple)
+        tint = MaterialTheme.colorScheme.onPrimary
+    )
 }
 
 @Composable
 fun PreviousButton(modifier: Modifier = Modifier.size(75.dp)) {
-    Icon(Icons.Rounded.SkipPrevious,
+    Icon(
+        Icons.Rounded.SkipPrevious,
         contentDescription = "SkipPrevious",
         modifier = modifier,
-        tint = DarkPurple)
+        tint = MaterialTheme.colorScheme.onPrimary
+    )
 }
+
 @Composable
 fun Slider(modifier: Modifier = Modifier.fillMaxWidth(0.78f)) {
     val sliderState = rememberSliderState(initialValue = 0f)
@@ -309,14 +331,14 @@ fun Slider(modifier: Modifier = Modifier.fillMaxWidth(0.78f)) {
                 modifier = modifier
                     .width(100.dp)
                     .height(8.dp)
-                    .background(PurpleGrey80, CircleShape)
+                    .background(MaterialTheme.colorScheme.secondary, CircleShape)
             )
         },
         thumb = {
             Box {
                 Thumb(
                     shape = CircleShape,
-                    color = Purple982,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
@@ -325,18 +347,24 @@ fun Slider(modifier: Modifier = Modifier.fillMaxWidth(0.78f)) {
 
 @Composable
 fun MediaControl(modifier: Modifier = Modifier.wrapContentSize()) {
-    Column(modifier = modifier.height(75.dp),
+    Column(
+        modifier = modifier.height(75.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        Row (verticalAlignment = Alignment.Top) {
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(verticalAlignment = Alignment.Top) {
             Slider()
         }
     }
-    Column(modifier = modifier,
+    Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-        Row(horizontalArrangement = Arrangement.spacedBy(5.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             PreviousButton()
             PlayButton()
             NextButton()

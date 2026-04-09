@@ -12,18 +12,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple982, // Tabs selecteds, Icon buttons
-    secondary = White, // Song text and album border
-    tertiary = White,
+    onPrimary = Purple982,
+    primary = Purple982,
+    onSecondary = WhiteGray,
+    secondary = WhiteGray,
+    onTertiary = White,
+    tertiary = DarkPurple,
     background = Black,
 )
 
 private val LightColorScheme = lightColorScheme(
+    onPrimary = Purple982,
     primary = Purple982,
-    secondary = Black,
-    tertiary = PurpleGrey80,
+    onSecondary = Gray,
+    secondary = Gray,
+    onTertiary = PurpleGrey80,
+    tertiary = Pinkf7,
     background = White,
-
 
     /* Other default colors to override
 
@@ -40,7 +45,7 @@ private val LightColorScheme = lightColorScheme(
 fun WPlayerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
